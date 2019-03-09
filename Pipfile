@@ -6,11 +6,12 @@ verify_ssl = true
 [dev-packages]
 pep8 = "*"
 mypy = "*"
+pytest = "*"
+pytest-watch = "*"
 
 [packages]
-marshmallow = "*"
 sqlalchemy = "*"
-pytest = "*"
+marshmallow = "==3.0.0rc4"
 
 [requires]
 python_version = "3.7"

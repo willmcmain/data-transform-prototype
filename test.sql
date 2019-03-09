@@ -1,5 +1,5 @@
-DROP TABLE IF EXISTS raw_tests;
-CREATE TABLE raw_tests (
+DROP TABLE IF EXISTS raw_quizzes;
+CREATE TABLE raw_quizzes (
     id VARCHAR PRIMARY KEY,
     name VARCHAR
 );
@@ -20,7 +20,7 @@ CREATE TABLE raw_questions (
     subjects VARCHAR
 );
 
-INSERT INTO raw_tests VALUES
+INSERT INTO raw_quizzes VALUES
     ("20a68f42-412d-4348-8a3d-0ae41d00800a", "Cat Herding"),
     ("447ab859-dad6-41f7-94a7-6e721f3041e2", "Python");
 
