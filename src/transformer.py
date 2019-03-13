@@ -5,6 +5,7 @@ from sqlalchemy.sql import select, insert
 from typing import Callable, List
 
 from .database import engine, meta
+from .custom_fields import RelatedMany
 
 Job = namedtuple('Job', ['source', 'destination', 'schema'])
 
@@ -26,6 +27,10 @@ def run() -> None:
     for job in jobs:
         source = Table(job.source, meta, autoload=True)
         schema = job.schema()
+        many_fields = []
+        for field_name, field in schema._declared_fields.items():
+            if isinstance(field, RelatedMany):
+                many_fields.append(field_name)
 
         with engine.connect() as c:
             result = c.execute(select([source]))
@@ -33,3 +38,18 @@ def run() -> None:
             data = schema.load((dict(d) for d in data), many=True)
             query = job.destination.insert()
             c.execute(query, data)
+            for datum in data:
+                for field_name in many_fields:
+                    bridge_job = datum[field_name]
+                    for uuid in bridge_job.uuids:
+                        query = bridge_job.bridge.insert()
+                        bridge_data = {
+                            bridge_job.source_column:
+                        }
+                        c.execute(query, bridge_job.source_column, bridge_job.destination_column)
+
+
+# from sqlalchemy.sql import table, column
+# >>> t1 = table('t1', column('a'), column('b'))
+# >>> t2 = table('t2', column('x'), column('y'))
+# >>> print(t1.insert().from_select(['a', 'b'], t2.select().where(t2.c.y == 5)))
