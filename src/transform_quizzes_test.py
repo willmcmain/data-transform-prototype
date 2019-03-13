@@ -1,9 +1,9 @@
 from sqlalchemy.sql import select
 from uuid import UUID
 
-from database import init_database, quizzes, engine
-from transformer import run
-from transform_quizzes import QuizSchema
+from .database import init_database, quizzes, engine, subjects, questions, question_subjects
+from .transformer import run
+from .transform_quizzes import QuizSchema
 
 
 def test_quiz_schema_load():
@@ -35,3 +35,31 @@ def test_transform_raw_data():
 
     assert quiz.name == 'Cat Herding'
     assert quiz.slug == 'cat-herding'
+
+    query = (select([subjects])
+        .where(subjects.c.uuid == '0b32a063-a728-4635-8938-4dfc6f0a059a'))
+
+    with engine.connect() as c:
+        result = c.execute(query)
+        subject = result.fetchone()
+
+    assert subject.name == 'Basic Cat Herding'
+
+    query = (select([questions])
+        .where(questions.c.uuid == '30def45b-47f0-4806-aa7f-e200c647d4ec'))
+
+    with engine.connect() as c:
+        result = c.execute(query)
+        question = result.fetchone()
+
+    assert question.stem == 'How do herd cats?'
+    assert question.quiz_id == quiz.id
+
+    query = (select([question_subjects])
+        .where((question_subjects.c.question_id == question.id)
+        & (question_subjects.c.subject_id == subject.id)))
+    with engine.connect() as c:
+        result = c.execute(query)
+        question_subject = result.fetchone()
+
+    assert question_subject is not None

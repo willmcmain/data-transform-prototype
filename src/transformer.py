@@ -4,7 +4,7 @@ from sqlalchemy import Table
 from sqlalchemy.sql import select, insert
 from typing import Callable, List
 
-from database import engine, meta
+from .database import engine, meta
 
 Job = namedtuple('Job', ['source', 'destination', 'schema'])
 
@@ -30,7 +30,6 @@ def run() -> None:
         with engine.connect() as c:
             result = c.execute(select([source]))
             data = result.fetchall()
-            data = [schema.load(dict(d)) for d in data]
-            # data = schema.load(data, many=True)
+            data = schema.load((dict(d) for d in data), many=True)
             query = job.destination.insert()
             c.execute(query, data)

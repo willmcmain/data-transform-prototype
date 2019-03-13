@@ -13,6 +13,7 @@ CREATE TABLE raw_subjects (
 DROP TABLE IF EXISTS raw_questions;
 CREATE TABLE raw_questions (
     id VARCHAR PRIMARY KEY,
+    quiz_id VARCHAR,
     stem VARCHAR,
     answer VARCHAR,
     distractor1 VARCHAR,
@@ -33,6 +34,7 @@ INSERT INTO raw_subjects VALUES
 INSERT INTO raw_questions VALUES
     (
         "30def45b-47f0-4806-aa7f-e200c647d4ec",
+        "20a68f42-412d-4348-8a3d-0ae41d00800a",
         "How do herd cats?",
         "They're cats",
         "Yes",
@@ -41,6 +43,7 @@ INSERT INTO raw_questions VALUES
     ),
     (
         "2f5ab47b-529d-48ac-b142-5b2e93a45b83",
+        "447ab859-dad6-41f7-94a7-6e721f3041e2",
         "How do you use a for loop?",
         "for:",
         "while:",
