@@ -5,11 +5,11 @@ from sqlalchemy.sql import select, insert
 from typing import Callable, List
 
 from .database import engine, meta
-from .custom_fields import RelatedMany
+from .custom_fields import RelatedMany, Related
 
 Job = namedtuple('Job', ['source', 'destination', 'schema'])
 
-jobs: List[Job] = []
+jobs = {}
 
 
 def topological_sort_jobs(job_graph):
@@ -47,18 +47,31 @@ def topological_sort_jobs(job_graph):
 
 def transformation(source: str, destination: Table) -> Callable[[Schema], Schema]:
     def _decorate(cls: Schema) -> Schema:
-        jobs.append(Job(
+        job = Job(
             source=source,
             destination=destination,
             schema=cls
-        ))
+        )
+        dependencies = []
+        for field_name, field in cls._declared_fields.items():
+            if isinstance(field, RelatedMany):
+                dependencies.append(field.related.name)
+            
+            if isinstance(field, Related):
+                dependencies.append(field.table.name)
+
+        jobs[destination.name] = {
+            'job': job,
+            'dependencies': dependencies or None
+        }
+
         return cls
     return _decorate
 
 
 def run() -> None:
     # sort jobs here
-    for job in jobs:
+    for job in topological_sort_jobs(jobs):
         source = Table(job.source, meta, autoload=True)
         schema = job.schema()
         many_fields = []
