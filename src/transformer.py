@@ -42,14 +42,13 @@ def run() -> None:
             for datum in data:
                 for field_name in many_fields:
                     bridge_job = datum[field_name]
-                    for uuid in bridge_job.uuids:
-                        select_query = (select([job.destination.c.id, bridge_job.related.c.id])
-                            .where((job.destination.c.uuid == datum['uuid'])
-                                & (bridge_job.related.c.uuid.in_(datum[field_name].uuids)) ))
-                        query = (bridge_job.bridge.insert().from_select(
-                            [bridge_job.source_column, bridge_job.destination_column], select_query))
-                            
-                        c.execute(query)
+                    select_query = (select([job.destination.c.id, bridge_job.related.c.id])
+                        .where((job.destination.c.uuid == datum['uuid'])
+                            & (bridge_job.related.c.uuid.in_(bridge_job.uuids)) ))
+                    query = (bridge_job.bridge.insert().from_select(
+                        [bridge_job.source_column, bridge_job.destination_column], select_query))
+                        
+                    c.execute(query)
 
 
 # from sqlalchemy.sql import table, column
