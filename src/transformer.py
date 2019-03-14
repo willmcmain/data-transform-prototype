@@ -1,4 +1,4 @@
-from collections import namedtuple
+from collections import namedtuple, defaultdict
 from marshmallow import Schema
 from sqlalchemy import Table
 from sqlalchemy.sql import select, insert
@@ -10,6 +10,39 @@ from .custom_fields import RelatedMany
 Job = namedtuple('Job', ['source', 'destination', 'schema'])
 
 jobs: List[Job] = []
+
+
+def topological_sort_jobs(job_graph):
+    """Generate a sorted list of jobs from a dependency graph
+
+    Node shape:
+        'table_name':{
+            'dependencies': ['list of dependencies'] or None,
+            'job': ActualJobObject
+        }
+    """
+    visited = defaultdict(bool)
+    visited_temp = defaultdict(bool)
+    job_list = []
+    
+    def search_dependencies(node, job_graph):
+        if visited[node]:
+            return
+        if visited_temp[node]:
+            raise ValueError("Cycle detected")
+        dependencies = job_graph[node]['dependencies']
+        job = job_graph[node]['job']
+        visited_temp[node] = True
+        if dependencies:
+            for dependency in dependencies:
+                search_dependencies(dependency, job_graph)
+        job_list.append(job)
+        visited[node] = True
+
+    for node in job_graph:
+        search_dependencies(node, job_graph)
+    
+    return job_list
 
 
 def transformation(source: str, destination: Table) -> Callable[[Schema], Schema]:
@@ -24,6 +57,7 @@ def transformation(source: str, destination: Table) -> Callable[[Schema], Schema
 
 
 def run() -> None:
+    # sort jobs here
     for job in jobs:
         source = Table(job.source, meta, autoload=True)
         schema = job.schema()
@@ -50,8 +84,6 @@ def run() -> None:
                         
                     c.execute(query)
 
-
-# from sqlalchemy.sql import table, column
-# >>> t1 = table('t1', column('a'), column('b'))
-# >>> t2 = table('t2', column('x'), column('y'))
-# >>> print(t1.insert().from_select(['a', 'b'], t2.select().where(t2.c.y == 5)))
+# TODO: sort what we save to respect the foreign key relationships (dependency graph?)
+# TODO: figure out how to deal with M:M relationships on the same table (categories)
+# ...???
