@@ -33,7 +33,8 @@ class RelatedMany(fields.Field):
         return "RelatedMany"
 
     def _deserialize(self, value, attr, data, **kwargs):
-        return RelatedJob(related=self.related, bridge=self.bridge, uuids=value)
+        return RelatedJob(related=self.related, bridge=self.bridge, uuids=value,
+            source_column=self.source_column, destination_column=self.destination_column)
 
 
-RelatedJob = namedtuple('RelatedJob', ['related', 'bridge', 'uuids'])
+RelatedJob = namedtuple('RelatedJob', ['related', 'bridge', 'uuids', 'source_column', 'destination_column'])

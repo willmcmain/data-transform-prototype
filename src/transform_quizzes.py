@@ -44,7 +44,11 @@ class QuestionSchema(Schema):
         additional = ('stem', 'answer', 'distractor1', 'distractor2')
     id = fields.UUID(attribute='uuid')
     quiz_id = Related(database.quizzes)
-    subjects = RelatedMany(related=database.subjects, bridge=database.question_subjects)
+    subjects = RelatedMany(
+        related=database.subjects,
+        bridge=database.question_subjects,
+        source_column=database.question_subjects.c.question_id,
+        destination_column=database.question_subjects.c.subject_id)
 
     @pre_load
     def deserialize_subjects(self, data):

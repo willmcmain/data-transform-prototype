@@ -1,3 +1,4 @@
 {
-    "python.pythonPath": "/Users/ateam/.local/share/virtualenvs/data-transform-prototype-KAySz8p4/bin/python"
+    "python.pythonPath": "/Users/ateam/.local/share/virtualenvs/data-transform-prototype-KAySz8p4/bin/python",
+    "editor.rulers": [80]
 }
