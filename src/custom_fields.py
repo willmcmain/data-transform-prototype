@@ -7,7 +7,7 @@ from . import database
 
 class Related(fields.Field):
     def __init__(self, table):
-        super().__init__(self, load_only=True)
+        super().__init__()
         self.table = table
 
     def __repr__(self):
@@ -23,7 +23,7 @@ class Related(fields.Field):
 
 class RelatedMany(fields.Field):
     def __init__(self, related: Table, bridge: Table, source_column: str, destination_column: str):
-        super().__init__(self, load_only=True)
+        super().__init__()
         self.related = related
         self.bridge = bridge
         self.source_column = source_column
@@ -35,6 +35,17 @@ class RelatedMany(fields.Field):
     def _deserialize(self, value, attr, data, **kwargs):
         return RelatedJob(related=self.related, bridge=self.bridge, uuids=value,
             source_column=self.source_column, destination_column=self.destination_column)
+
+class RelatedSelf(field.Field):
+    def __init__(self):
+        super().__init__()
+
+    def __repr__(self):
+        return "RelatedSelf"
+
+    def _deserialize(self, value, attr, data, **kwargs):
+        
+
 
 
 RelatedJob = namedtuple('RelatedJob', ['related', 'bridge', 'uuids', 'source_column', 'destination_column'])
