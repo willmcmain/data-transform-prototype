@@ -7,7 +7,8 @@ CREATE TABLE raw_quizzes (
 DROP TABLE IF EXISTS raw_subjects;
 CREATE TABLE raw_subjects (
     id VARCHAR PRIMARY KEY,
-    name VARCHAR
+    name VARCHAR,
+    parent_id VARCHAR
 );
 
 DROP TABLE IF EXISTS raw_questions;
@@ -26,10 +27,10 @@ INSERT INTO raw_quizzes VALUES
     ("447ab859-dad6-41f7-94a7-6e721f3041e2", "Python");
 
 INSERT INTO raw_subjects VALUES
-    ("0b32a063-a728-4635-8938-4dfc6f0a059a", "Basic Cat Herding"),
-    ("fa2c0919-af36-48df-9576-a48302c8de6f", "Advanced Cat Herding"),
-    ("debf0cba-9919-4a7a-b01f-3a0233fe65f0", "Variables"),
-    ("82f02bca-72f2-40fd-8772-634d9afd7667", "For Loops");
+    ("0b32a063-a728-4635-8938-4dfc6f0a059a", "Basic Cat Herding", NULL),
+    ("fa2c0919-af36-48df-9576-a48302c8de6f", "Advanced Cat Herding", "0b32a063-a728-4635-8938-4dfc6f0a059a"),
+    ("debf0cba-9919-4a7a-b01f-3a0233fe65f0", "Variables", NULL),
+    ("82f02bca-72f2-40fd-8772-634d9afd7667", "For Loops", NULL);
 
 INSERT INTO raw_questions VALUES
     (

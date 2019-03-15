@@ -5,7 +5,7 @@ from sqlalchemy.sql import select, insert
 from typing import Callable, List
 
 from .database import engine, meta
-from .custom_fields import RelatedMany, Related
+from .custom_fields import RelatedMany, Related, RelatedSelf
 
 Job = namedtuple('Job', ['source', 'destination', 'schema'])
 
@@ -75,9 +75,12 @@ def run() -> None:
         source = Table(job.source, meta, autoload=True)
         schema = job.schema()
         many_fields = []
+        self_fields = []
         for field_name, field in schema._declared_fields.items():
             if isinstance(field, RelatedMany):
                 many_fields.append(field_name)
+            if isinstance(field, RelatedSelf):
+                self_fields.append(field_name)
 
         with engine.connect() as c:
             result = c.execute(select([source]))
@@ -85,8 +88,8 @@ def run() -> None:
             data = schema.load((dict(d) for d in data), many=True)
             query = job.destination.insert()
             c.execute(query, data)
-            # handle many to many relationships
             for datum in data:
+                # handle many to many relationships
                 for field_name in many_fields:
                     bridge_job = datum[field_name]
                     select_query = (select([job.destination.c.id, bridge_job.related.c.id])
@@ -96,6 +99,16 @@ def run() -> None:
                         [bridge_job.source_column, bridge_job.destination_column], select_query))
                         
                     c.execute(query)
+                # handle self referential relationships
+                for field_name in self_fields:
+                    related_uuid = datum[field_name]
+                    query = job.destination.update()
+                        .values(job.destination.c[field_name] = job.destination.c.id)
+                    # select_query = (select([job.destination.c.id])
+                    #     .where(job.destination.c.uuid == related_uuid))
+                    # query = job.destination.update()
+                    #     .where(job.destination.c.uuid == datum['uuid'])
+
 
 # TODO: sort what we save to respect the foreign key relationships (dependency graph?)
 # TODO: figure out how to deal with M:M relationships on the same table (categories)

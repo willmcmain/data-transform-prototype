@@ -24,7 +24,8 @@ questions = Table('questions', meta,
 subjects = Table('subjects', meta,
     Column('id', Integer, primary_key=True),
     Column('uuid', String),
-    Column('name', String)
+    Column('name', String),
+    Column('parent_id', Integer)
 )
 
 question_subjects = Table('question_subjects', meta,
