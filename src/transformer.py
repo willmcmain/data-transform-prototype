@@ -102,14 +102,8 @@ def run() -> None:
                 # handle self referential relationships
                 for field_name in self_fields:
                     related_uuid = datum[field_name]
-                    query = job.destination.update()
-                        .values(job.destination.c[field_name] = job.destination.c.id)
-                    # select_query = (select([job.destination.c.id])
-                    #     .where(job.destination.c.uuid == related_uuid))
-                    # query = job.destination.update()
-                    #     .where(job.destination.c.uuid == datum['uuid'])
-
-
-# TODO: sort what we save to respect the foreign key relationships (dependency graph?)
-# TODO: figure out how to deal with M:M relationships on the same table (categories)
-# ...???
+                    subquery = select([job.destination.c.id]).where(job.destination.c.uuid==related_uuid)
+                    values = { field_name: subquery.as_scalar() }
+                    query = (job.destination.update().values(**values)
+                        .where(job.destination.c.uuid == datum["uuid"]))
+                    c.execute(query)

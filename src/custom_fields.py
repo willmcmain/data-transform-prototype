@@ -36,16 +36,8 @@ class RelatedMany(fields.Field):
         return RelatedJob(related=self.related, bridge=self.bridge, uuids=value,
             source_column=self.source_column, destination_column=self.destination_column)
 
-class RelatedSelf(field.Field):
-    def __init__(self):
-        super().__init__()
-
-    def __repr__(self):
-        return "RelatedSelf"
-
-    def _deserialize(self, value, attr, data, **kwargs):
-        
-
+class RelatedSelf(fields.Field):
+    pass
 
 
 RelatedJob = namedtuple('RelatedJob', ['related', 'bridge', 'uuids', 'source_column', 'destination_column'])

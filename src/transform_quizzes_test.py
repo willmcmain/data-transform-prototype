@@ -63,3 +63,12 @@ def test_transform_raw_data():
         question_subject = result.fetchone()
 
     assert question_subject is not None
+
+    query = (select([subjects])
+        .where(subjects.c.uuid == 'fa2c0919-af36-48df-9576-a48302c8de6f'))
+
+    with engine.connect() as c:
+        result = c.execute(query)
+        subject_advanced = result.fetchone()
+
+    assert subject_advanced.parent_id == subject.id

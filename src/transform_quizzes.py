@@ -6,7 +6,7 @@ from sqlalchemy.sql import select
 
 from . import database
 from .transformer import transformation
-from .custom_fields import Related, RelatedMany
+from .custom_fields import Related, RelatedMany, RelatedSelf
 
 
 @transformation(source='raw_questions', destination=database.questions)
@@ -55,6 +55,7 @@ class SubjectSchema(Schema):
         additional = 'name',
 
     id = fields.UUID(attribute="uuid")
+    parent_id = RelatedSelf(allow_none=True)
 
     @post_load
     def set_data(self, data):
